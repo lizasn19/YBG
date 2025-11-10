@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
 
 export const dynamic = "force-dynamic";
-export default function ResetPasswordPage() {
+
+// Komponen yang memakai useSearchParams dibungkus Suspense
+function ResetContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = getSupabaseClient();
 
-  const [ready, setReady] = useState(false); 
+  const [ready, setReady] = useState(false);
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,15 @@ export default function ResetPasswordPage() {
 
     async function init() {
       setMsg("");
-      const code = searchParams.get("code");
+
+      // Jika env belum tersedia saat prerender, jangan lanjutkan
+      if (!supabase) {
+        if (!cancelled) setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
+        return;
+      }
+
+      // Ambil code dari URL dan tukar sesi
+      const code = searchParams.get("code") || searchParams.get("oobCode");
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error && !cancelled) {
@@ -29,7 +39,6 @@ export default function ResetPasswordPage() {
           return;
         }
       }
-
 
       const { data } = await supabase.auth.getSession();
       if (!cancelled) setReady(!!data?.session);
@@ -42,20 +51,15 @@ export default function ResetPasswordPage() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams]);
+  }, [searchParams, supabase]);
 
   async function onSubmit(e) {
     e.preventDefault();
     setMsg("");
 
-    if (!pw1 || pw1.length < 8) {
-      setMsg("Password minimal 8 karakter.");
-      return;
-    }
-    if (pw1 !== pw2) {
-      setMsg("Konfirmasi password tidak sama.");
-      return;
-    }
+    if (!pw1 || pw1.length < 8) return setMsg("Password minimal 8 karakter.");
+    if (pw1 !== pw2) return setMsg("Konfirmasi password tidak sama.");
+    if (!supabase) return setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
 
     setLoading(true);
     try {
@@ -63,7 +67,6 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       setMsg("Password berhasil diubah. Silakan login ulang.");
-
       await supabase.auth.signOut();
       router.replace("/login");
     } catch (err) {
@@ -82,7 +85,9 @@ export default function ResetPasswordPage() {
         </p>
 
         {!ready ? (
-          <div className="mt-6 text-center text-sm text-rose-600">{msg || "Menyiapkan sesi..."}</div>
+          <div className="mt-6 text-center text-sm text-rose-600">
+            {msg || "Menyiapkan sesi..."}
+          </div>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <label className="block text-sm">
@@ -120,5 +125,13 @@ export default function ResetPasswordPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Memuat…</div>}>
+      <ResetContent />
+    </Suspense>
   );
 }
