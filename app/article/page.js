@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import BottomNavigation from "../components/bottomnav";
-import { getSupabaseClient } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 export const dynamic = "force-dynamic"; 
-const supabase = getSupabaseClient();
 
 function Card({ item }) {
   return (

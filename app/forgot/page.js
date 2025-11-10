@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 import { useRouter } from "next/navigation";
 
 export default function ForgotPage() {

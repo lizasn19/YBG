@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import Claim from "../components/claim";
 import BottomNavigation from "../components/bottomnav";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 
 
 /** Definisi tier */

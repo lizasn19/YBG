@@ -2,9 +2,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
-
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 
 export default function HorizontalProductList({ title }) {
   const [products, setProducts] = useState([]);

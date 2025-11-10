@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 
 
 const formatIDR = (v) =>

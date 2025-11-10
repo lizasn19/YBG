@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 
 
 function getOrCreateGuestId() {

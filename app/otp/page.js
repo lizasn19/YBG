@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getSupabaseClient } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 import Image from "next/image";
 
 export const dynamic = "force-dynamic"; // hindari SSG/prerender

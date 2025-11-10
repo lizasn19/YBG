@@ -4,10 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getSupabaseClient } from "@/lib/supabaseClient";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 import ImageCarousel from "@/app/components/ImageCarousel";
-
-const supabase = getSupabaseClient();
 
 
 const formatIDR = (v) =>

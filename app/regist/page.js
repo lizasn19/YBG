@@ -1,8 +1,8 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;
 
 
 function normPhoneToE164(idPhone = "") {
@@ -174,8 +174,8 @@ export default function RegistPage() {
 
         {step === "fill" && (
           <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
-            <Input label="Nama Lengkap" name="name" value={form.name} onChange={onChange} />
-            <Input label="Email" type="email" name="email" value={form.email} onChange={onChange} />
+            <Input label="Nama Lengkap" name="name" placeholder = "Masukkan Nama Lengkap" value={form.name} onChange={onChange} />
+            <Input label="Email" type="email" name="email" placeholder = "Masukkan Email" value={form.email} onChange={onChange} />
             <Input
               label="Nomor Handphone (opsional)"
               type="tel"
@@ -184,8 +184,8 @@ export default function RegistPage() {
               value={form.phone}
               onChange={onChange}
             />
-            <Input label="Password" type="password" name="password" value={form.password} onChange={onChange} />
-            <Input label="Konfirmasi Password" type="password" name="confirm" value={form.confirm} onChange={onChange} />
+            <Input label="Password" type="password" name="password" placeholder = "Masukkan Password" value={form.password} onChange={onChange} />
+            <Input label="Konfirmasi Password" type="password" name="confirm" placeholder = "Masukkan Konfirmasi Password" value={form.confirm} onChange={onChange} />
 
             {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
 
