@@ -22,31 +22,23 @@ export default function InfoCarousel() {
     return () => clearTimeout(t);
   }, [i, wrap]);
 
-  if (!L) return null;
-  const slide = SLIDES[i];
-
+  // ⬇️ Hooks harus didefinisikan SEBELUM return bersyarat
   const nextSlide = useCallback(() => setI((n) => wrap(n + 1)), [wrap]);
   const prevSlide = useCallback(() => setI((n) => wrap(n - 1)), [wrap]);
 
+  if (!L) return null;              // aman: setelah semua hooks terpanggil
+  const slide = SLIDES[i];
+
   return (
     <div style={{ minHeight: "100dvh", background: "#F3F4F6" }}>
-      <div
-        style={{
-          width: "100%",
-          minHeight: "100dvh",
-          background: "#E6B8C8",
-          padding: "24px 16px",
-        }}
-      >
+      <div style={{ width: "100%", minHeight: "100dvh", background: "#E6B8C8", padding: "24px 16px" }}>
         <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
           {SLIDES.map((_, idx) => (
             <span
               key={idx}
               onClick={() => setI(idx)}
               style={{
-                width: 30,
-                height: 4,
-                borderRadius: 2,
+                width: 30, height: 4, borderRadius: 2,
                 background: idx === i ? "#D6336C" : "white",
                 cursor: "pointer",
               }}
@@ -68,13 +60,9 @@ export default function InfoCarousel() {
             <button
               onClick={prevSlide}
               style={{
-                flex: 1,
-                padding: "5px 10px",
-                background: "#fff",
-                color: "#111",
-                border: "1px solid #D6336C",
-                borderRadius: 8,
-                cursor: "pointer",
+                flex: 1, padding: "5px 10px",
+                background: "#fff", color: "#111",
+                border: "1px solid #D6336C", borderRadius: 8, cursor: "pointer",
               }}
             >
               Sebelumnya
@@ -83,13 +71,9 @@ export default function InfoCarousel() {
           <button
             onClick={() => (i === L - 1 ? router.push("/login") : nextSlide())}
             style={{
-              flex: 1,
-              padding: "5px 10px",
-              background: "#D6336C",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              cursor: "pointer",
+              flex: 1, padding: "5px 10px",
+              background: "#D6336C", color: "#fff",
+              border: "none", borderRadius: 8, cursor: "pointer",
             }}
           >
             {i === L - 1 ? "Mulai Sekarang" : "Selanjutnya"}
@@ -99,3 +83,4 @@ export default function InfoCarousel() {
     </div>
   );
 }
+
