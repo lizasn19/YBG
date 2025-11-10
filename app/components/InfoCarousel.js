@@ -28,7 +28,8 @@ export default function InfoCarousel() {
   const router = useRouter();
   const [i, setI] = useState(0);
   const L = SLIDES.length;
-  const wrap = (idx) => ((idx % L) + L) % L;
+  const wrap = useCallback((n) => (n + L) % L, [L]);
+
 
   useEffect(() => {
     const d = SLIDES[i]?.duration ?? 10000;
