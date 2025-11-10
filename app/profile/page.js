@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import BottomNavigation from "../components/bottomnav";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
+const supabase = getSupabaseClient();
+
 
 const DEFAULT_PROFILE = {
   nama: "",

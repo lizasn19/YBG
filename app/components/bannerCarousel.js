@@ -7,7 +7,9 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
+const supabase = getSupabaseClient();
+
 
 export default function BannerCarousel({ heightClass = "h-[300px] md:h-[300px] lg:h-[400px]" }) {
   const [slides, setSlides] = useState([]);

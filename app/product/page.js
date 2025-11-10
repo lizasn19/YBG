@@ -6,10 +6,12 @@ import Link from "next/link";
 import BottomNavigation from "../components/bottomnav";
 import BannerCarousel from "../components/bannerCarousel";
 import HorizontalProductList from "../components/productCard";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 import { toPublicUrl } from "@/lib/storage";
 import { fetchCategories } from "@/lib/categories";
 import { fetchBrands } from "@/lib/repos";
+
+const supabase = getSupabaseClient();
 
 const formatIDR = (v) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(v);

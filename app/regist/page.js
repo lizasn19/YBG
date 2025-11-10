@@ -1,7 +1,9 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
+const supabase = getSupabaseClient();
+
 
 function normPhoneToE164(idPhone = "") {
   let p = (idPhone || "").trim().replace(/\s+/g, "");

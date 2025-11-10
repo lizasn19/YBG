@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
+const supabase = getSupabaseClient();
+
 
 /** Simpan/ambil guest id lokal untuk pengguna yang tidak login */
 function getOrCreateGuestId() {

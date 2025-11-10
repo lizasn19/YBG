@@ -5,7 +5,9 @@ import Link from "next/link";
 import BannerCarousel from "../components/bannerCarousel";
 import HorizontalProductList from "../components/productCard";
 import BottomNavigation from "../components/bottomnav";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
+const supabase = getSupabaseClient();
+
 
 const TIERS = [
   { id: "friend",  name: "FRIEND",  threshold: 25 },
