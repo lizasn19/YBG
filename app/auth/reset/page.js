@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 const supabase = getSupabaseClient();
 
-
+export const dynamic = "force-dynamic";
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
