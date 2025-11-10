@@ -142,8 +142,8 @@ export default function ArticlePage() {
 
             {errPromo && (
               <p className="text-xs text-rose-600 mb-2">
-                {errPromo} — Jika selalu kosong padahal ada data, cek RLS
-                policy: izinkan SELECT untuk status='published' dan is_active=true.
+                {errPromo} {`Jika selalu kosong padahal ada data, cek RLS
+                policy: izinkan SELECT untuk status='published' dan is_active=true.`}
               </p>
             )}
 

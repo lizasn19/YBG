@@ -34,7 +34,7 @@ export default function InfoCarousel() {
     const d = SLIDES[i]?.duration ?? 10000;
     const t = setTimeout(() => setI((n) => wrap(n + 1)), d);
     return () => clearTimeout(t);
-  }, [i, L]);
+  }, [i, L, wrap]);
 
   if (!L) return null;
   const slide = SLIDES[i];
