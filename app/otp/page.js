@@ -1,13 +1,17 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+
+import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabaseClient";
-const supabase = getSupabaseClient();
+import Image from "next/image";
 
+export const dynamic = "force-dynamic"; // hindari SSG/prerender
 
-export default function OtpPage() {
+function OtpClient() {
   const q = useSearchParams();
   const router = useRouter();
+  const supabase = getSupabaseClient();
+
   const email = q.get("email") || "";
   const mode = useMemo(() => (email ? "email" : "unknown"), [email]);
 
@@ -18,11 +22,13 @@ export default function OtpPage() {
 
   useEffect(() => {
     if (mode === "unknown") setMsg("Tidak ada email di URL. Kembali ke login.");
-  }, [mode]);
+    if (!supabase) setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
+  }, [mode, supabase]);
 
   async function onVerify(e) {
     e.preventDefault();
     if (!code || code.length < 6) return setMsg("Masukkan 6 digit kode OTP.");
+    if (!supabase) return setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
 
     setLoading(true);
     setMsg("");
@@ -44,7 +50,6 @@ export default function OtpPage() {
           data: { full_name: name || null, phone: phone || null },
         });
         if (updErr) throw updErr;
-
         sessionStorage.removeItem("pending_registration");
       }
 
@@ -61,6 +66,7 @@ export default function OtpPage() {
     setResending(true);
     setMsg("");
     try {
+      if (!supabase) throw new Error("Konfigurasi belum siap.");
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { shouldCreateUser: true },
@@ -78,7 +84,8 @@ export default function OtpPage() {
     <div className="min-h-[100dvh] bg-neutral-100">
       <main className="mx-auto w-full max-w-[430px] bg-white shadow md:border px-6 pt-10 pb-[env(safe-area-inset-bottom)]">
         <div className="flex flex-col items-center">
-          <img src="/logo_ybg.png" alt="YBG" className="w-24 h-24" />
+          {/* ganti img -> Image untuk hilangkan warning */}
+          <Image src="/logo_ybg.png" alt="YBG" width={96} height={96} />
           <h1 className="text-black text-[22px] font-semibold mt-2">Konfirmasi OTP</h1>
           <p className="text-sm text-gray-600 mt-1 text-center">
             Kode dikirim ke <span className="font-medium text-[#D6336C]">{email || "—"}</span>
@@ -102,15 +109,32 @@ export default function OtpPage() {
             {loading ? "Memverifikasi..." : "Verifikasi & Selesai"}
           </button>
 
-          <button type="button" disabled={resending} onClick={onResend} className="w-full border border-[#D6336C] text-[#D6336C] font-semibold rounded-lg py-3">
+          <button
+            type="button"
+            disabled={resending}
+            onClick={onResend}
+            className="w-full border border-[#D6336C] text-[#D6336C] font-semibold rounded-lg py-3"
+          >
             {resending ? "Mengirim ulang..." : "Kirim Ulang Kode"}
           </button>
 
-          <button type="button" onClick={() => router.push("/login")} className="w-full border border-gray-300 text-gray-700 rounded-lg py-3">
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg py-3"
+          >
             Kembali ke Login
           </button>
         </form>
       </main>
     </div>
+  );
+}
+
+export default function OtpPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Memuat…</div>}>
+      <OtpClient />
+    </Suspense>
   );
 }
