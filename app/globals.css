@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --swiper-navigation-color: #D6336C;   /* warna tombol panah */
+  --swiper-pagination-color: #D6336C;   /* kalau mau sekalian bullet */
 }
 
 @theme inline {
@@ -23,4 +25,33 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh; /* full layar mobile */
+  margin: 0;
+  overscroll-behavior: none; /* hilangkan bounce effect iOS */
+}
+
+/* Utility untuk screen penuh (dipakai di <main class="app-screen">) */
+.app-screen {
+  min-height: 100dvh;        /* penuh layar, dinamis sesuai browser */
+  display: grid;
+  place-items: center;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Tombol standar (pink brand) */
+.btn-primary {
+  @apply w-full py-3 rounded-lg font-semibold text-white bg-[#D6336C] hover:bg-[#FF4F8D];
+}
+
+/* Tombol outline */
+.btn-outline {
+  @apply w-full py-3 rounded-lg font-semibold border border-[#D6336C] text-[#D6336C] active:bg-white;
+}
+
+/* Input field */
+.input {
+  @apply w-full px-3 py-2 border-[#929292] rounded-lg;
 }
