@@ -6,7 +6,6 @@ export default function InfoPage() {
   const router = useRouter();
 
   return (
-    // latar abu-abu di desktop, full di HP
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
       <main
         className="

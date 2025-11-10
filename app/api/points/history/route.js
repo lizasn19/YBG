@@ -29,7 +29,7 @@ export async function GET() {
   try {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
-      // Kembalikan array kosong agar frontend tetap mudah di-handle
+      
       return NextResponse.json([], { status: 200, headers: { "Cache-Control": "no-store" } });
     }
 
@@ -53,8 +53,8 @@ export async function GET() {
 
       return {
         id: row.id,
-        delta: rawDelta, // menjaga field asli dari DB
-        amount, // absolute number, memudahkan frontend
+        delta: rawDelta, 
+        amount, 
         type,
         description: row.reason ?? null,
         created_at: row.created_at,

@@ -21,7 +21,7 @@ export default function CartPage() {
   const [rows, setRows] = useState([]);
   const [error, setError] = useState("");
 
-  const waNumber = process.env.NEXT_PUBLIC_WA_SA || "6281234567890";
+  const waNumber = process.env.NEXT_PUBLIC_SA_WA_NUMBER ;
 
   const subtotal = useMemo(
     () =>
@@ -190,9 +190,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
-      {/* frame utama pakai border default (abu), tidak pink */}
       <main className="w-full min-h-[100dvh] bg-white md:max-w-[430px] md:shadow md:border flex flex-col">
-        {/* Header (tanpa border pink) */}
         <div className="sticky top-0 z-10 bg-white px-4 py-3 shadow flex items-center gap-3">
           <button onClick={() => router.back()} aria-label="Kembali">
             <Image src="/back.svg" alt="Kembali" width={14} height={14} className="w-9 h-7 pr-3" />
@@ -247,7 +245,6 @@ export default function CartPage() {
                     <p className="text-sm font-medium text-black line-clamp-2">{title}</p>
                     <p className="text-xs text-[#D6336C] font-semibold mt-1">{formatIDR(price)}</p>
 
-                    {/* Qty controls — HANYA ini yang pink */}
                     <div className="mt-2 flex items-center gap-2">
                       <button
                         onClick={() => setQty(it.cart_id, (it.qty || 1) - 1)}
@@ -274,7 +271,6 @@ export default function CartPage() {
           </ul>
         )}
 
-        {/* Footer (tanpa border pink) */}
         <div className="mt-auto sticky bottom-0 bg-white border-t px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-600">Subtotal</span>

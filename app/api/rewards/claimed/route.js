@@ -25,7 +25,7 @@ function userSupabase() {
 function adminSupabase() {
   return createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY, // server only!
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } }
   );
 }
@@ -35,7 +35,6 @@ export async function GET(req) {
     const sb = userSupabase();
     const admin = adminSupabase();
 
-    // 1) cari uid: header dulu, lalu cookies session
     let uid = req.headers.get("x-user-id") || null;
     if (!uid) {
       const { data: auth } = await sb.auth.getUser();
@@ -43,9 +42,6 @@ export async function GET(req) {
     }
     if (!uid) return NextResponse.json([], { status: 200 });
 
-    // === 2) COBA: sekali query dengan JOIN (menurut instruksimu) ===
-    // Pastikan sudah ada FK: reward_claims.reward_id -> rewards.id
-    // dan RLS mengizinkan SELECT (admin client bypass RLS).
     let list = [];
     let tryJoin = true;
 
@@ -82,13 +78,13 @@ export async function GET(req) {
         return NextResponse.json(list, { status: 200 });
       }
 
-      // Jika join gagal, tulis log lalu fallback ke 2-query
+     
       if (jErr) {
         console.warn("claimed join select error, fallback to 2-query:", jErr);
       }
     }
 
-    // === 3) FALLBACK: 2-query tanpa join ===
+    
     const { data: claims, error: cErr } = await admin
       .from("reward_claims")
       .select("id, reward_id, voucher_code, created_at, sent_to_sa, sent_to_sa_at")

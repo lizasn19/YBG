@@ -43,7 +43,6 @@ export default function InfoCarousel() {
   const prevSlide = () => setI((n) => wrap(n - 1));
 
   return (
-    // Latar abu-abu di desktop; container ponsel di tengah
     <div style={{ minHeight: "100dvh", background: "#F3F4F6" }}>
       <div
         style={{
@@ -67,7 +66,6 @@ export default function InfoCarousel() {
           ))}
         </div>
 
-        {/* Gambar: tinggi responsif 55% layar */}
         <div style={{ position: "relative", width: "100%", height: "40vh", marginTop: 40 }}>
           <Image src={slide.image} alt={slide.title} fill style={{ objectFit: "contain" }} priority />
         </div>
@@ -78,7 +76,7 @@ export default function InfoCarousel() {
         </h2>
         <p style={{ color: "#000", textAlign: "center" }}>{slide.body}</p>
 
-        {/* Tombol: full-width di “ponsel” */}
+        {/* Tombol*/}
         <div style={{ marginTop: 150, display: "flex", gap: 12 }}>
           {i > 0 && (
             <button

@@ -18,18 +18,15 @@ export default function BottomNavigation() {
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50"
-      // background & shadow di level full-width supaya terlihat rapi di layar besar
       style={{ WebkitTapHighlightColor: "transparent" }}
     >
-      {/* Centered container — lebarnya mengikuti main layout (md:max-w-[430px]) */}
       <div className="mx-auto md:max-w-[430px] w-full">
-        {/* visual wrapper */}
+
         <div className="bg-white border-t border-gray-200 shadow-sm"
              style={{ paddingTop: "0.5rem", paddingBottom: "env(safe-area-inset-bottom, 12px)" }}>
           <nav className="flex justify-around items-center h-[64px] px-2">
             {NAV.map((item) => {
               const Icon = item.icon;
-              // active: treat '/' and '/home' appropriately — adjust if your routes differ
               const active = pathname === item.href || pathname.startsWith(item.href + "/") || (item.href === "/home" && pathname === "/");
 
               return (

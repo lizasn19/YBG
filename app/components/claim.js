@@ -1,11 +1,9 @@
-// app/components/claim.js
 "use client";
 
 import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-// bikin/stored guest id (untuk user non-login)
 function getOrCreateGuestId() {
   try {
     const k = "ybg-guest-id";
@@ -31,7 +29,6 @@ export default function Claim({
   const [guestId, setGuestId] = useState(null);
   const [waNumber, setWaNumber] = useState(process.env.NEXT_PUBLIC_SA_WA_NUMBER || "");
 
-  // ambil email user jika login, dan siapkan guestId
   useEffect(() => {
     (async () => {
       try {
@@ -46,7 +43,6 @@ export default function Claim({
   const stock  = Number(reward?.stock ?? 0);
   const cost   = Number(reward?.cost ?? 0);
 
-  // Boleh tetap lakukan guard UI: stok > 0
   const canClaim = useMemo(() => {
     if (!reward) return false;
     if (stock <= 0) return false;
@@ -58,7 +54,7 @@ export default function Claim({
     const title = reward?.title || "Reward";
     const rid = reward?.id || "-";
 
-    // Pesan yang dikirim ke SA (silakan sesuaikan sesuai SOP SA)
+    // Pesan yang dikirim ke SA 
     const text = [
       "Halo Kak Admin SA, saya mau klaim voucher 🙏",
       `• Akun: ${idInfo}`,
@@ -70,8 +66,8 @@ export default function Claim({
     ].join("\n");
 
     const encoded = encodeURIComponent(text);
-    const phone = (waNumber || "").replace(/^\+/, ""); // hilangkan '+' jika ada
-    // pakai wa.me biar simpel
+    const phone = (waNumber || "").replace(/^\+/, "");
+
     return `https://wa.me/${phone}?text=${encoded}`;
   };
 
@@ -88,15 +84,12 @@ export default function Claim({
 
     setProcessing(true);
     try {
-      // langsung redirect ke WhatsApp (tab baru)
+      //redirect ke WhatsApp
       const url = buildWaHref();
       window.open(url, "_blank", "noopener,noreferrer");
 
-      // callback UI (refresh poin/daftar reward bila perlu)
       try { if (typeof onClaimed === "function") await onClaimed(); } catch {}
 
-      // catatan: tidak ada pencatatan otomatis di DB.
-      // SA yang akan memproses poin & stok secara manual via Supabase.
     } catch (e) {
       console.error("claim (WA) error:", e);
       const msg = "Gagal membuka WhatsApp. Coba lagi.";

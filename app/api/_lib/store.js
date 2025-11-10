@@ -4,16 +4,14 @@ export const runtime = "nodejs";
 import { cookies } from "next/headers";
 import crypto from "node:crypto";
 
-// ====== PERSIST DI DEV (hindari reset saat HMR) ======
 const g = globalThis;
 if (!g.__YBG_DB__) {
   g.__YBG_DB__ = {
     rewards: [
-      // Samakan dengan struktur yang dipakai komponen: pakai image_url
       { id: "r1", title: "Mini City Wallet", cost: 2, image_url: "/product/product1.jpg", stock: 5 },
       { id: "r2", title: "Voucher Diskon Rp600.000", cost: 1, image_url: "/product/product2.jpg", stock: 10 },
     ],
-    // uid => { transactions: Tx[], claimed: [] }
+
     users: new Map(),
   };
 }
@@ -27,7 +25,6 @@ const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 export function getOrCreateUser() {
   const jar = cookies();
 
-  // ⚠️ Cookie secure harus false di dev, true di production
   const secure = process.env.NODE_ENV === "production";
 
   let uid = jar.get("uid")?.value;
@@ -37,7 +34,7 @@ export function getOrCreateUser() {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      secure,                // <- aman di prod, jalan di dev
+      secure,                
       maxAge: 60 * 60 * 24 * 365, // 1 tahun
     });
   }

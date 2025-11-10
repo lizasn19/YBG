@@ -14,8 +14,6 @@ const isEmail = (v = "") => /\S+@\S+\.\S+/.test(String(v).trim());
 
 export default function RegistPage() {
   const router = useRouter();
-
-  // simpan email/phone yang sudah tervalidasi agar tidak hilang saat ganti step
   const emailRef = useRef("");
   const phoneRef = useRef("");
 
@@ -27,7 +25,7 @@ export default function RegistPage() {
     confirm: "",
   });
 
-  const [step, setStep] = useState("fill"); // fill | otp | done
+  const [step, setStep] = useState("fill");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
@@ -35,7 +33,6 @@ export default function RegistPage() {
   const onChange = (e) =>
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
-  // 1) Kirim OTP ke email — TANPA magic link
   async function handleSendOtp(e) {
     e.preventDefault();
     setMsg("");
@@ -53,13 +50,9 @@ export default function RegistPage() {
 
     setLoading(true);
     try {
-      // simpan agar tidak hilang saat step berubah
       emailRef.current = email;
       phoneRef.current = phoneE164;
 
-      // PENTING:
-      // - gunakan signInWithOtp (bukan signUp)
-      // - JANGAN set emailRedirectTo => tidak jadi magic link
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -77,7 +70,6 @@ export default function RegistPage() {
       setMsg("Kode OTP sudah dikirim ke email kamu. Cek inbox/spam.");
     } catch (err) {
       console.error(err);
-      // beberapa instance supabase melempar objek error yg beda-beda
       const code = String(err?.status || err?.code || "");
       if (code === "429") {
         setMsg("Terlalu sering mengirim OTP. Coba lagi beberapa menit lagi.");
@@ -92,7 +84,6 @@ export default function RegistPage() {
     }
   }
 
-  // 2) Verifikasi OTP → set password + metadata
   async function handleVerifyAndFinish(e) {
     e.preventDefault();
     setMsg("");
@@ -102,15 +93,13 @@ export default function RegistPage() {
 
     setLoading(true);
     try {
-      // verifikasi kode (akan sekaligus membuat sesi login)
       const { error: verErr } = await supabase.auth.verifyOtp({
         email: emailRef.current,
         token: code,
-        type: "email", // Wajib 'email' untuk OTP email
+        type: "email",
       });
       if (verErr) throw verErr;
 
-      // setelah verify berhasil, kita bisa set password & metadata
       const { error: updErr } = await supabase.auth.updateUser({
         password: form.password,
         data: {
@@ -126,8 +115,7 @@ export default function RegistPage() {
       router.replace("/login");
     } catch (err) {
       console.error(err);
-      // jika project-mu masih menyalakan "Confirm email", verifyOtp bisa gagal/tidak membuat sesi.
-      // Matikan "Confirm email" di Auth → Sign in/Providers untuk alur OTP-only.
+
       setMsg(
         err?.message ||
           "Verifikasi gagal. Pastikan kodenya benar, belum kedaluwarsa, dan 'Confirm email' dimatikan."

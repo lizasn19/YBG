@@ -4,22 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 
 export default function ImageCarousel({ urls = [], alt = "Foto produk", className = "", height = 260 }) {
-  // normalize: buang falsy + hilangkan duplikat sederhana
   const images = useMemo(() => Array.from(new Set((urls || []).filter(Boolean))), [urls]);
   const [i, setI] = useState(0);
 
-  // reset index saat daftar berubah
   useEffect(() => {
-    // mulai dari 0 tiap ada perubahan daftar
     setI(0);
   }, [images.length]);
 
-  // jaga-jaga kalau i out-of-range (misal gambar berkurang)
   useEffect(() => {
     if (i >= images.length) setI(0);
   }, [i, images.length]);
 
-  // swipe sederhana
   const [startX, setStartX] = useState(null);
   const onStart = (e) => setStartX((e.touches?.[0]?.clientX) ?? e.clientX);
   const onEnd = (e) => {
@@ -43,7 +38,7 @@ export default function ImageCarousel({ urls = [], alt = "Foto produk", classNam
       onTouchEnd={onEnd}
     >
       <Image
-        key={`${current}-${images.length}`}   // berubah saat slide atau jumlah berubah
+        key={`${current}-${images.length}`}  
         src={current}
         alt={alt}
         fill

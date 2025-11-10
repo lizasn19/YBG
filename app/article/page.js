@@ -37,7 +37,7 @@ function Card({ item }) {
 }
 
 export default function ArticlePage() {
-  const [promo, setPromo] = useState(null);     // null = loading, [] = kosong
+  const [promo, setPromo] = useState(null);     
   const [goesto, setGoesto] = useState(null);
   const [errPromo, setErrPromo] = useState("");
   const [errGoesto, setErrGoesto] = useState("");
@@ -100,7 +100,7 @@ export default function ArticlePage() {
             (gRes.data || []).map((r) => ({
               section: "goesto",
               id: r.id,
-              title: r.nama, // kolom berbeda
+              title: r.nama,
               image_url: r.image_url,
               deskripsi: r.deskripsi,
               published_at: r.published_at,

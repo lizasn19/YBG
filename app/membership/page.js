@@ -69,16 +69,15 @@ export default function Membership() {
   const [loadingRewards, setLoadingRewards] = useState(false);
   const [userId, setUserId] = useState(null);
 
-  // ====== state info kadaluarsa ======
+  //state info kadaluarsa
   const [expiry, setExpiry] = useState({
-    nextDate: null,        // ISO string
-    nextAmount: 0,         // total poin yang hangus pada nextDate
-    soonAmount: 0,         // total poin hangus <= 30 hari lagi
-    daysLeft: null,        // sisa hari ke nextDate
+    nextDate: null,        
+    nextAmount: 0,         
+    soonAmount: 0,         
+    daysLeft: null,        
     loading: false,
   });
 
-  // ambil user id
   const getUserId = async () => {
     try {
       const { data } = await supabase.auth.getUser();
@@ -119,7 +118,6 @@ export default function Membership() {
     }
   }, []);
 
-  // === NEW: hitung info kadaluarsa dari user_points (delta>0) ===
   const refreshExpiry = useCallback(async () => {
     setExpiry((s) => ({ ...s, loading: true }));
     try {
@@ -129,7 +127,6 @@ export default function Membership() {
         return;
       }
 
-      // Ambil semua credit yang belum lewat expire, urut paling dekat
       const nowIso = new Date().toISOString();
       const { data, error } = await supabase
         .from("user_points")
@@ -150,7 +147,6 @@ export default function Membership() {
         return;
       }
 
-      // tanggal expire terdekat (dibulatkan ke tanggal yang sama)
       const firstDate = new Date(data[0].expires_at);
       const yyyy = firstDate.getFullYear();
       const mm = firstDate.getMonth();
@@ -164,7 +160,6 @@ export default function Membership() {
 
       for (const row of data) {
         const exp = new Date(row.expires_at);
-        // total yang exp pada tanggal terdekat (same Y/M/D)
         if (
           exp.getFullYear() === yyyy &&
           exp.getMonth() === mm &&
@@ -172,7 +167,7 @@ export default function Membership() {
         ) {
           nextAmount += Number(row.delta || 0);
         }
-        // total yang exp dalam 30 hari ke depan
+
         if (exp <= in30) {
           soonAmount += Number(row.delta || 0);
         }
@@ -227,13 +222,13 @@ export default function Membership() {
   useEffect(() => {
     (async () => {
       await refreshPoints();
-      await refreshExpiry();   // <— panggil juga
+      await refreshExpiry();
       await loadRewards();
     })();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
       refreshPoints();
-      refreshExpiry();         // <— panggil juga
+      refreshExpiry();       
       loadRewards();
     });
 
@@ -247,7 +242,6 @@ export default function Membership() {
 
   const t = getTierInfo(points);
 
-  // ===== UI =====
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
       <main className="w-full min-h-[100dvh] bg-white flex flex-col md:max-w-[430px] md:shadow md:border"  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)' }}
@@ -260,7 +254,6 @@ export default function Membership() {
               <p>YBG Poin Kamu</p>
               <h2 className="font-bold">{loadingPoints ? "..." : `${points} Poin`}</h2>
 
-              {/* === Info kadaluarsa dinamis === */}
               {expiry.loading ? (
                 <p>Mengecek masa berlaku…</p>
               ) : expiry.nextDate ? (
@@ -298,7 +291,7 @@ export default function Membership() {
             )}
           </div>
 
-          {/* progress bar (span saat ini) */}
+          {/* progress bar*/}
           <div className="mt-2">
             <div className="h-3 w-full rounded-full bg-pink-100 overflow-hidden">
               <div
@@ -320,7 +313,6 @@ export default function Membership() {
             </div>
           </div>
 
-          {/* skala absolut */}
           <div className="mt-4">
             <div className="relative h-1.5 bg-gray-200/60 rounded-full">
               <div

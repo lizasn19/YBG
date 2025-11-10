@@ -28,20 +28,20 @@ export default function ArticleDetailPage() {
     return (s || "").toLowerCase();
   }, [params]);
 
-  // id from URL (string -> clean string)
+  // id from URL
   const rawId = useMemo(() => {
     const r = Array.isArray(params?.id) ? params.id[0] : params?.id;
     return decodeURIComponent(String(r ?? "")).trim();
   }, [params]);
 
-  // table by section (always a string, never null)
+  // table by section 
   const table = useMemo(() => {
     if (section === "promo") return "promo_event";
     if (section === "goesto") return "ybg_goesto";
-    return ""; // keep deps length constant
+    return ""; 
   }, [section]);
 
-  // title column by table (always a string)
+  // title column by table
   const titleCol = useMemo(() => {
     if (table === "promo_event") return "judul";
     if (table === "ybg_goesto") return "nama";
@@ -52,14 +52,13 @@ export default function ArticleDetailPage() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    // wait until we have everything
+
     if (!table || !titleCol || !rawId) return;
 
     let alive = true;
 
     (async () => {
       try {
-        // id in DB is int8 -> compare with a number
         const id = Number(rawId);
         if (!Number.isFinite(id)) {
           setErr("ID artikel tidak valid.");
@@ -91,14 +90,14 @@ export default function ArticleDetailPage() {
         if (!alive) return;
         setItem(null);
         setErr("Gagal memuat artikel.");
-        // console.error("Article detail fatal:", e);
+
       }
     })();
 
     return () => {
       alive = false;
     };
-  }, [table, titleCol, rawId]); // <- constant-length deps
+  }, [table, titleCol, rawId]);
 
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">

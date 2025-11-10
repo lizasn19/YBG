@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-const WA_NUMBER = process.env.NEXT_PUBLIC_WA_SA || "6285880951777";
+const WA_NUMBER = process.env.NEXT_PUBLIC_SA_WA_NUMBER;
 
 function waLink(voucher, title) {
   const text =
@@ -20,7 +20,7 @@ export default function MyRewardsPage() {
   const [list, setList] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const [sendingId, setSendingId] = useState(null); // claim yg sedang dikirim
+  const [sendingId, setSendingId] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,7 +55,7 @@ export default function MyRewardsPage() {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [load]);
 
-  // hilangkan duplikat berdasarkan voucher_code (kalau ada)
+
   const listDedup = useMemo(() => {
     if (!Array.isArray(list)) return [];
     const seen = new Set();
@@ -71,20 +71,16 @@ export default function MyRewardsPage() {
 
   const hasData = listDedup.length > 0;
 
-  // === tandai dikirim & buka WA (RPC + optimistic UI) ===
   const redeemViaWA = useCallback(
     async (item) => {
       const claimId = item.id || item.claim_id;
       const title = item.reward_title ?? item.title ?? "Reward";
       const voucher = item.voucher_code ?? "-";
 
-      // buka WA dulu biar terasa cepat
       window.open(waLink(voucher, title), "_blank", "noopener,noreferrer");
 
-      // jika sudah terkirim, cukup buka WA & keluar
       if (item.sent_to_sa) return;
 
-      // optimistic: tandai di UI
       setSendingId(claimId);
       setList((cur) =>
         (cur || []).map((x) =>
@@ -95,11 +91,9 @@ export default function MyRewardsPage() {
       );
 
       try {
-        // panggil RPC (aman: hanya boleh menandai klaim milik user)
         await supabase.rpc("mark_claim_sent", { p_claim_id: claimId });
       } catch (e) {
         console.error("mark_claim_sent failed:", e);
-        // kalau gagal, kembalikan status di UI (opsional)
         setList((cur) =>
           (cur || []).map((x) =>
             (x.id || x.claim_id) === claimId
@@ -109,7 +103,6 @@ export default function MyRewardsPage() {
         );
       } finally {
         setSendingId(null);
-        // sync ulang dari server biar pasti
         setTimeout(load, 600);
       }
     },
@@ -147,7 +140,6 @@ export default function MyRewardsPage() {
           </p>
         )}
 
-        {/* Skeleton */}
         {loading && (
           <section className="p-4 space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -204,7 +196,6 @@ export default function MyRewardsPage() {
                         sizes="88px"
                         className="object-cover"
                         onError={(e) => {
-                          // fallback: simple gray placeholder
                           e.currentTarget.src =
                             "data:image/svg+xml;utf8," + encodeURIComponent(placeholderSVG());
                           e.currentTarget.onerror = null;

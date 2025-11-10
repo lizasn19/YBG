@@ -3,12 +3,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
-// Ubah ke true kalau Phone login di Supabase sudah diaktifkan + SMS gateway diset
 const PHONE_LOGIN_ENABLED = false;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState(""); // email ATAU phone
+  const [identifier, setIdentifier] = useState(""); 
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,12 +17,11 @@ export default function LoginPage() {
   const isPhone = (v) => /^\+?\d{8,15}$/.test((v || "").replace(/[\s-]/g, ""));
 
   function normalizePhone(v) {
-    // terima format: +62xxxx, 62xxxx, 0xxxx
     let x = (v || "").replace(/[^\d+]/g, "");
     if (x.startsWith("+62")) return x;
     if (x.startsWith("62")) return "+" + x;
     if (x.startsWith("0")) return "+62" + x.slice(1);
-    if (x.startsWith("+")) return x; // fallback lain
+    if (x.startsWith("+")) return x; 
     return "+" + x;
   }
 
@@ -45,7 +43,7 @@ export default function LoginPage() {
       return;
     }
 
-    // Jika user isi nomor HP tapi phone login belum diaktifkan, jangan kirim ke Supabase
+
     if (isIdPhone && !PHONE_LOGIN_ENABLED) {
       setMsg("Login pakai nomor HP belum diaktifkan. Gunakan email.");
       return;
@@ -61,7 +59,7 @@ export default function LoginPage() {
           password,
         }));
       } else {
-        // PHONE_LOGIN_ENABLED = true baru boleh jalan ke sini
+
         ({ error } = await supabase.auth.signInWithPassword({
           phone: normalizePhone(id),
           password,

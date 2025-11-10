@@ -7,7 +7,6 @@ import HorizontalProductList from "../components/productCard";
 import BottomNavigation from "../components/bottomnav";
 import { supabase } from "@/lib/supabaseClient";
 
-// Urut dari terendah ke tertinggi (samakan dengan halaman Membership)
 const TIERS = [
   { id: "friend",  name: "FRIEND",  threshold: 25 },
   { id: "bestie",  name: "BESTIE",  threshold: 50 },
@@ -92,7 +91,6 @@ export default function Beranda() {
 
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
-      {/* Tambahkan overflow-y-auto + padding-bottom agar konten tidak ketutup bottom nav */}
       <main className="w-full min-h-[100dvh] bg-white flex flex-col md:max-w-[430px] md:shadow md:border overflow-y-auto pb-[80px]">
         {/* Top bar */}
         <div className="flex items-center justify-between bg-white shadow p-4 sticky top-0 z-10">

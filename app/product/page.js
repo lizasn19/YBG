@@ -61,7 +61,7 @@ export default function ProductAllPage() {
     })();
   }, []);
 
-  // (opsional) filter client-side by q
+  // filter client-side by q
   const filtered =
     Array.isArray(items) && q.trim()
       ? items.filter((p) => (p?.nama || "").toLowerCase().includes(q.trim().toLowerCase()))
@@ -69,7 +69,7 @@ export default function ProductAllPage() {
 
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
-      {/* overflow-y-auto + pb agar tidak ketutup BottomNavigation */}
+
       <main className="w-full min-h-[100dvh] bg-white md:max-w-[430px] md:shadow md:border flex flex-col overflow-y-auto pb-[80px]">
         {/* Header */}
         <div className="sticky top-0 bg-white px-4 py-3 shadow flex items-center justify-between gap-3 z-10">
@@ -86,12 +86,10 @@ export default function ProductAllPage() {
           </Link>
         </div>
 
-        {/* Banner atas (kalau memang ingin ada di page ini) */}
         <div className="w-full">
           <BannerCarousel />
         </div>
 
-        {/* Search — suppressHydrationWarning mencegah mismatch dari atribut injeksi ekstensi */}
         <div className="px-4 py-3">
           <input
             placeholder="Produk, Jenis Produk..."
@@ -102,9 +100,9 @@ export default function ProductAllPage() {
             name="search"
             inputMode="search"
             spellCheck={false}
-            data-lpignore="true"           // minta password manager untuk ignore
-            data-form-type="other"         // kurangi intervensi beberapa PM
-            suppressHydrationWarning       // <- kunci anti hydration mismatch
+            data-lpignore="true"           
+            data-form-type="other"         
+            suppressHydrationWarning       
           />
         </div>
 

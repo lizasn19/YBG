@@ -8,7 +8,7 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [ready, setReady] = useState(false); // sudah punya recovery session?
+  const [ready, setReady] = useState(false); 
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,6 @@ export default function ResetPasswordPage() {
 
     async function init() {
       setMsg("");
-      // 1) Jika ada ?code= di URL (email OTP style), tukar jadi session
       const code = searchParams.get("code");
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -29,7 +28,7 @@ export default function ResetPasswordPage() {
         }
       }
 
-      // 2) Cek apakah kita sudah punya session (recovery)
+
       const { data } = await supabase.auth.getSession();
       if (!cancelled) setReady(!!data?.session);
       if (!data?.session && !cancelled) {
@@ -62,7 +61,7 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       setMsg("Password berhasil diubah. Silakan login ulang.");
-      // opsional: sign out supaya bersih
+
       await supabase.auth.signOut();
       router.replace("/login");
     } catch (err) {

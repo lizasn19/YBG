@@ -55,7 +55,6 @@ export default function ProfilePage() {
     setForm((f) => ({ ...f, gender: val }));
   }
 
-  // 🔹 Simpan perubahan profil ke Supabase
   async function onSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -88,13 +87,12 @@ export default function ProfilePage() {
     }
   }
 
-  // 🔹 Logout user dan redirect ke login
   async function onLogout() {
     try {
       await supabase.auth.signOut();
       setMsg("Kamu sudah logout 👋");
       setTimeout(() => {
-        window.location.href = "/login"; // redirect otomatis
+        window.location.href = "/login";
       }, 1000);
     } catch (e) {
       console.error("logout error:", e);
@@ -105,18 +103,17 @@ export default function ProfilePage() {
   return (
     <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
       <main className="w-full min-h-[100dvh] bg-white flex flex-col md:max-w-[430px] md:shadow md:border">
-        {/* 🔸 Header */}
+        {/* Header */}
         <div className="sticky top-0 z-10 bg-white text-[#D6336C] px-4 py-3 font-semibold shadow">
           Profile
         </div>
 
-        {/* 🔸 Form Profile */}
+        {/* Form Profile */}
         <form onSubmit={onSubmit} className="flex-1 pb-24">
-          {/* Kartu identitas */}
           <div className="px-4 mt-3">
             <div className="rounded-xl border border-pink-100 bg-white p-3 flex items-center gap-3 shadow-sm">
               <div className="relative w-12 h-12 overflow-hidden rounded-full bg-pink-50">
-                <Image src="/avatar_default.png" alt="avatar" fill className="object-cover" />
+                <Image src="/avatar.png" alt="avatar" fill className="object-cover" />
               </div>
               <div className="leading-tight">
                 <p className="text-[15px] font-semibold text-black">
@@ -195,7 +192,7 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* 🔹 Pesan & Tombol simpan */}
+          {/*Tombol simpan */}
           <div className="px-4 mt-5 space-y-3">
             {msg && (
               <div className="mb-3 text-[12px] text-center text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg py-2">
@@ -210,7 +207,7 @@ export default function ProfilePage() {
               {saving ? "Menyimpan…" : "Simpan Perubahan"}
             </button>
 
-            {/* 🔸 Tombol Logout Besar */}
+            {/*Tombol Logout*/}
             {userId && (
               <button
                 type="button"
@@ -229,7 +226,6 @@ export default function ProfilePage() {
   );
 }
 
-/* ===== Komponen kecil ===== */
 
 function SectionTitle({ title }) {
   return (

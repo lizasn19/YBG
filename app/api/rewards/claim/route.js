@@ -78,8 +78,6 @@ export default function Claim({
         return;
       }
 
-      // susun pesan
-      // NB: tidak ada pemotongan poin di sini, murni permintaan ke SA
       const lines = [
         "Halo Admin SA, saya ingin menukarkan reward:",
         "",
@@ -97,7 +95,7 @@ export default function Claim({
 
       const url = `https://wa.me/${wa}?text=${enc(lines.join("\n"))}`;
 
-      // buka WA (tab baru) — tidak ada permutakhiran DB di sini
+      // buka WA (tab baru)
       window.open(url, "_blank", "noopener,noreferrer");
     } finally {
       setOpening(false);

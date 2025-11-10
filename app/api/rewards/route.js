@@ -28,7 +28,7 @@ export async function GET() {
 
   if (error) {
     console.error("[/api/rewards] error:", error);
-    // Balikkan array kosong agar FE tidak crash
+ 
     return NextResponse.json([], { status: 200 });
   }
   return NextResponse.json(data ?? [], { status: 200 });

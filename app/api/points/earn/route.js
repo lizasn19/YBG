@@ -57,9 +57,8 @@ export async function POST(req) {
     // --- Insert ke user_points ---
     const insertPayload = {
       user_id: userId,
-      delta: amount, // positif untuk penambahan
+      delta: amount,
       reason: description,
-      // expires_at: ... // (opsional) kalau kamu punya aturan expire
     };
 
     const { data: insertedRows, error: insertErr } = await supabase
@@ -87,7 +86,6 @@ export async function POST(req) {
 
     if (pbErr) {
       console.error("[earn] read point_balances error:", pbErr);
-      // kita coba tetap upsert ke point_balances
     }
 
     const currentBalance = Number(pbData?.balance ?? 0);
@@ -100,14 +98,12 @@ export async function POST(req) {
 
     if (upsertErr) {
       console.error("[earn] upsert point_balances error:", upsertErr);
-      // Meski upsert gagal, kita sudah menyisipkan user_points; laporkan error
       return NextResponse.json(
         { error: "Gagal memperbarui saldo poin" },
         { status: 500 }
       );
     }
 
-    // Format response yang mudah dipakai oleh frontend
     const formatted = {
       ok: true,
       points: newBalance,

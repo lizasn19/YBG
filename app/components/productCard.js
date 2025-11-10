@@ -11,7 +11,7 @@ export default function HorizontalProductList({ title }) {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        // ambil data dari tabel ybg_exclusive
+        // ambil dari tabel ybg_exclusive
         const { data, error } = await supabase
           .from("ybg_exclusive")
           .select("id, nama, image_url, price, brand_slug, kategori, deskripsi")

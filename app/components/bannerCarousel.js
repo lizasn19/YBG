@@ -13,11 +13,10 @@ export default function BannerCarousel({ heightClass = "h-[300px] md:h-[300px] l
   const [slides, setSlides] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
-  // tombol navigasi custom
+  // tombol navigasi
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  // kunci untuk force-remount Swiper jika daftar slide berubah
   const idsKey = slides.map((s) => s.id).join(",");
 
   useEffect(() => {
@@ -101,7 +100,7 @@ export default function BannerCarousel({ heightClass = "h-[300px] md:h-[300px] l
     );
   }
 
-  // satu gambar (tanpa Swiper)
+
   if (slides.length === 1) {
     const b = slides[0];
     return (
@@ -118,10 +117,9 @@ export default function BannerCarousel({ heightClass = "h-[300px] md:h-[300px] l
     );
   }
 
-  // banyak gambar (Swiper + nav custom)
+
   return (
     <div className="relative w-full">
-      {/* tombol kiri/kanan muncul hanya jika >1 slide */}
       {slides.length > 1 && (
         <>
           <button
@@ -142,14 +140,14 @@ export default function BannerCarousel({ heightClass = "h-[300px] md:h-[300px] l
       )}
 
       <Swiper
-        key={idsKey} // remount jika list berubah
+        key={idsKey} 
         modules={[Autoplay, Pagination, Navigation]}
         slidesPerView={1}
         loop
         pagination={{ clickable: true }}
         autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         className="w-full"
-        // hubungkan tombol custom saat swiper siap
+
         onInit={(swiper) => {
           swiper.params.navigation.prevEl = prevRef.current;
           swiper.params.navigation.nextEl = nextRef.current;

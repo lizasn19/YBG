@@ -17,7 +17,7 @@ export default function BrandCarousel({ title = "Brand", useApi = false }) {
   const [brands, setBrands] = useState(BRAND_SEED);
   const [loading, setLoading] = useState(useApi);
 
-  //ambil dari API
+  //dari API
   useEffect(() => {
     if (!useApi) return;
     (async () => {

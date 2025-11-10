@@ -10,8 +10,7 @@ import ImageCarousel from "@/app/components/ImageCarousel";
 const formatIDR = (v) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(v);
 
-// ✅ nomor WA Sales Advisor dari env (fallback dummy)
-const WA_SA = process.env.NEXT_PUBLIC_WA_SA || "6281234567890";
+const WA_SA = process.env.NEXT_PUBLIC_SA_WA_NUMBER
 
 export default function ProductDetailPage() {
   const { id: rawId, slug: rawSlug } = useParams();
@@ -24,7 +23,7 @@ export default function ProductDetailPage() {
   const [item, setItem] = useState(null);
   const [error, setError] = useState("");
   const [source, setSource] = useState(""); // "upcoming" | "exclusive" | "products"
-  const [adding, setAdding] = useState(false); // ✅ state proses add-to-cart
+  const [adding, setAdding] = useState(false); 
 
   // sumber cart untuk produk normal
   const cartSource = useMemo(() => {
@@ -106,7 +105,7 @@ export default function ProductDetailPage() {
     return () => { alive = false; };
   }, [id, isUpcoming]);
 
-  // ✅ handler: Tambah Wishlist -> cart_items
+  // handler: Tambah Wishlist -> cart_items
   async function handleAddToCart() {
     try {
       if (!item || isUpcoming) return;
@@ -152,7 +151,7 @@ export default function ProductDetailPage() {
     }
   }
 
-  // ✅ handler: Beli Sekarang -> WhatsApp SA
+  // handler: Beli Sekarang -> WhatsApp SA
   function handleBuyNow() {
     if (!item || isUpcoming) return;
     const title = item?.nama || "Produk";

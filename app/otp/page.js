@@ -25,7 +25,6 @@ export default function OtpPage() {
     setLoading(true);
     setMsg("");
     try {
-      // 1) Verifikasi OTP (ini akan meloginkan user baru)
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: code,
@@ -33,11 +32,9 @@ export default function OtpPage() {
       });
       if (error) throw error;
 
-      // 2) Ambil data pending dari sessionStorage
       const raw = sessionStorage.getItem("pending_registration");
       const pending = raw ? JSON.parse(raw) : null;
 
-      // 3) Set password & metadata untuk akun baru
       if (pending && pending.email === email) {
         const { password, name, phone } = pending;
         const { error: updErr } = await supabase.auth.updateUser({

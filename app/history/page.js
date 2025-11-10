@@ -102,15 +102,12 @@ export default function HistoryPage() {
     loading: false,
   });
 
-  // rewards (keperluan reuse Claim component jika diperlukan)
   const [rewards, setRewards] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
 
-  // history entries
   const [history, setHistory] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // ambil user id
   const getUserId = async () => {
     try {
       const { data } = await supabase.auth.getUser();
@@ -158,7 +155,6 @@ export default function HistoryPage() {
     }
   }, []);
 
-  // refresh expiry info (credits that will expire)
   const refreshExpiry = useCallback(async () => {
     setExpiry((s) => ({ ...s, loading: true }));
     try {
@@ -223,7 +219,6 @@ export default function HistoryPage() {
     }
   }, []);
 
-  // load rewards (optional, used by Claim component)
   const loadRewards = useCallback(async () => {
     setLoadingRewards(true);
     try {
@@ -254,7 +249,6 @@ export default function HistoryPage() {
     }
   }, []);
 
-  // fetch history entries
   const fetchHistory = useCallback(async () => {
     setLoadingHistory(true);
     try {
@@ -304,7 +298,6 @@ export default function HistoryPage() {
     }
   }, []);
 
-  // initialize + auth listener
   useEffect(() => {
     (async () => {
       await refreshPoints();
@@ -330,7 +323,6 @@ export default function HistoryPage() {
 
   const t = getTierInfo(points);
 
-  // loading skeleton when everything still null
   const overallLoading = loadingPoints || loadingHistory;
 
   if (overallLoading || history === null) {
