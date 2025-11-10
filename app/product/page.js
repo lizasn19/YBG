@@ -12,7 +12,6 @@ import { toPublicUrl } from "@/lib/storage";
 import { fetchCategories } from "@/lib/categories";
 import { fetchBrands } from "@/lib/repos";
 
-const supabase = getSupabaseClient();
 
 const formatIDR = (v) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(v);
