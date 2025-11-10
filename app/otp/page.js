@@ -19,20 +19,30 @@ function OtpClient() {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0); // ⬅️ cooldown anti-429
+
+  // timer cooldown
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
   useEffect(() => {
     if (mode === "unknown") setMsg("Tidak ada email di URL. Kembali ke login.");
-    if (!supabase) setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
+    if (!supabase) setMsg("Konfigurasi belum siap. Coba beberapa saat lagi.");
   }, [mode, supabase]);
 
   async function onVerify(e) {
     e.preventDefault();
+    setMsg("");
+
     if (!code || code.length < 6) return setMsg("Masukkan 6 digit kode OTP.");
-    if (!supabase) return setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
+    if (!supabase) return setMsg("Konfigurasi belum siap. Coba beberapa saat lagi.");
 
     setLoading(true);
-    setMsg("");
     try {
+      // verifikasi OTP
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: code,
@@ -40,6 +50,7 @@ function OtpClient() {
       });
       if (error) throw error;
 
+      // jika ada data registrasi yang tertunda, set password & profil
       const raw = sessionStorage.getItem("pending_registration");
       const pending = raw ? JSON.parse(raw) : null;
 
@@ -49,7 +60,15 @@ function OtpClient() {
           password,
           data: { full_name: name || null, phone: phone || null },
         });
-        if (updErr) throw updErr;
+
+        // 422 = "New password should be different..." → anggap sudah terset/sukses
+        if (updErr) {
+          const msg = (updErr.message || "").toLowerCase();
+          if (!(updErr.status === 422 || msg.includes("new password should be different"))) {
+            throw updErr;
+          }
+        }
+
         sessionStorage.removeItem("pending_registration");
       }
 
@@ -63,6 +82,7 @@ function OtpClient() {
   }
 
   async function onResend() {
+    if (cooldown > 0) return; // ⬅️ cegah spam
     setResending(true);
     setMsg("");
     try {
@@ -73,6 +93,7 @@ function OtpClient() {
       });
       if (error) throw error;
       setMsg("Kode OTP baru sudah dikirim. Cek inbox/spam.");
+      setCooldown(15); // ⬅️ tunggu 15 detik
     } catch (err) {
       setMsg(err?.message || "Gagal mengirim ulang OTP.");
     } finally {
@@ -84,7 +105,6 @@ function OtpClient() {
     <div className="min-h-[100dvh] bg-neutral-100">
       <main className="mx-auto w-full max-w-[430px] bg-white shadow md:border px-6 pt-10 pb-[env(safe-area-inset-bottom)]">
         <div className="flex flex-col items-center">
-          {/* ganti img -> Image untuk hilangkan warning */}
           <Image src="/logo_ybg.png" alt="YBG" width={96} height={96} />
           <h1 className="text-black text-[22px] font-semibold mt-2">Konfirmasi OTP</h1>
           <p className="text-sm text-gray-600 mt-1 text-center">
@@ -105,17 +125,20 @@ function OtpClient() {
 
           {msg && <div className="text-center text-[13px] text-rose-600">{msg}</div>}
 
-          <button disabled={loading} className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60">
+          <button
+            disabled={loading || !supabase}
+            className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60"
+          >
             {loading ? "Memverifikasi..." : "Verifikasi & Selesai"}
           </button>
 
           <button
             type="button"
-            disabled={resending}
+            disabled={resending || cooldown > 0 || !supabase}
             onClick={onResend}
-            className="w-full border border-[#D6336C] text-[#D6336C] font-semibold rounded-lg py-3"
+            className="w-full border border-[#D6336C] text-[#D6336C] font-semibold rounded-lg py-3 disabled:opacity-60"
           >
-            {resending ? "Mengirim ulang..." : "Kirim Ulang Kode"}
+            {resending ? "Mengirim ulang..." : cooldown > 0 ? `Tunggu ${cooldown}s` : "Kirim Ulang Kode"}
           </button>
 
           <button
