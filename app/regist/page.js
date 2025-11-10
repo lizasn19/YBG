@@ -1,9 +1,9 @@
 "use client";
+
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 const supabase = supabaseBrowser;
-
 
 function normPhoneToE164(idPhone = "") {
   let p = (idPhone || "").trim().replace(/\s+/g, "");
@@ -13,6 +13,40 @@ function normPhoneToE164(idPhone = "") {
   return p;
 }
 const isEmail = (v = "") => /\S+@\S+\.\S+/.test(String(v).trim());
+
+function Input({ label, type = "text", ...props }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
+
+  return (
+    <label className="block text-sm">
+      {label && <span className="block text-black mb-1 font-medium">{label}</span>}
+
+      {isPassword ? (
+        <div className="flex items-stretch gap-2">
+          <input
+            {...props}
+            type={show ? "text" : "password"}
+            className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
+          />
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            className="px-3 rounded-lg border border-[#D1D5DB] text-sm"
+          >
+            {show ? "Sembunyi" : "Lihat"}
+          </button>
+        </div>
+      ) : (
+        <input
+          {...props}
+          type={type}
+          className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
+        />
+      )}
+    </label>
+  );
+}
 
 export default function RegistPage() {
   const router = useRouter();
@@ -117,7 +151,6 @@ export default function RegistPage() {
       router.replace("/login");
     } catch (err) {
       console.error(err);
-
       setMsg(
         err?.message ||
           "Verifikasi gagal. Pastikan kodenya benar, belum kedaluwarsa, dan 'Confirm email' dimatikan."
@@ -174,18 +207,11 @@ export default function RegistPage() {
 
         {step === "fill" && (
           <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
-            <Input label="Nama Lengkap" name="name" placeholder = "Masukkan Nama Lengkap" value={form.name} onChange={onChange} />
-            <Input label="Email" type="email" name="email" placeholder = "Masukkan Email" value={form.email} onChange={onChange} />
-            <Input
-              label="Nomor Handphone (opsional)"
-              type="tel"
-              name="phone"
-              placeholder="08xxx atau +62xxx"
-              value={form.phone}
-              onChange={onChange}
-            />
-            <Input label="Password" type="password" name="password" placeholder = "Masukkan Password" value={form.password} onChange={onChange} />
-            <Input label="Konfirmasi Password" type="password" name="confirm" placeholder = "Masukkan Konfirmasi Password" value={form.confirm} onChange={onChange} />
+            <Input label="Nama Lengkap" name="name" placeholder="Masukkan Nama Lengkap" value={form.name} onChange={onChange} />
+            <Input label="Email" type="email" name="email" placeholder="Masukkan Email" value={form.email} onChange={onChange} />
+            <Input label="Nomor Handphone (opsional)" type="tel" name="phone" placeholder="08xxx atau +62xxx" value={form.phone} onChange={onChange} />
+            <Input label="Password" type="password" name="password" placeholder="Masukkan Password" value={form.password} onChange={onChange} />
+            <Input label="Konfirmasi Password" type="password" name="confirm" placeholder="Masukkan Konfirmasi Password" value={form.confirm} onChange={onChange} />
 
             {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
 
@@ -237,17 +263,5 @@ export default function RegistPage() {
         )}
       </main>
     </div>
-  );
-}
-
-function Input({ label, ...props }) {
-  return (
-    <label className="block text-sm">
-      {label && <span className="block text-black mb-1 font-medium">{label}</span>}
-      <input
-        {...props}
-        className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
-      />
-    </label>
   );
 }
