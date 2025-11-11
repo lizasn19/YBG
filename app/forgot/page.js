@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 const supabase = supabaseBrowser;
-import { useRouter } from "next/navigation";
 
 export default function ForgotPage() {
   const router = useRouter();
@@ -11,21 +11,43 @@ export default function ForgotPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
+  const baseUrl = useMemo(() => {
+    const fromEnv = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/$/, "");
+    if (fromEnv) return fromEnv;
+    if (typeof window !== "undefined") return window.location.origin;
+    return ""; 
+  }, []);
+
   async function onSubmit(e) {
     e.preventDefault();
     setMsg("");
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+
+    const emailTrim = email.trim().toLowerCase();
+    const valid = /\S+@\S+\.\S+/.test(emailTrim);
+    if (!valid) {
       setMsg("Masukkan email yang valid.");
       return;
     }
+
+    if (!baseUrl) {
+      setMsg("Konfigurasi URL belum siap. Coba lagi beberapa saat.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/auth/reset`;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      const redirectTo = `${baseUrl}/auth/reset`;
+      const { error } = await supabase.auth.resetPasswordForEmail(emailTrim, { redirectTo });
       if (error) throw error;
+
       setMsg("Email reset telah dikirim. Periksa inbox/spam kamu.");
     } catch (err) {
-      setMsg(err?.message || "Gagal mengirim email reset.");
+      const code = String(err?.status || err?.code || "");
+      if (code === "429") {
+        setMsg("Terlalu sering meminta reset. Coba lagi beberapa menit lagi.");
+      } else {
+        setMsg(err?.message || "Gagal mengirim email reset.");
+      }
     } finally {
       setLoading(false);
     }
