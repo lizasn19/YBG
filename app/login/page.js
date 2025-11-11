@@ -95,9 +95,6 @@ export default function LoginPage() {
           <h1 className="text-black text-[22px] font-bold">Masuk ke Akun YBG</h1>
           <p className="text-sm text-gray-600 mt-1 text-center">
             Gunakan <b>email</b> dan <b>password</b>.
-            {!PHONE_LOGIN_ENABLED && (
-              <> (Login pakai nomor HP belum diaktifkan)</>
-            )}
           </p>
         </div>
 
