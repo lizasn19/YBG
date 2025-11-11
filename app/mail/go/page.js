@@ -1,40 +1,46 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
 
-export default function MailGoPage() {
-  const params = useSearchParams();
-  const next = useMemo(() => {
-    const raw = params.get("next") || "";
-    try { return decodeURIComponent(raw); } catch { return raw; }
-  }, [params]);
+export const dynamic = "force-dynamic";  
 
-  const onContinue = () => {
-    if (next) window.location.href = next;
-  };
+function MailGoInner() {
+  const sp = useSearchParams();
+  const next = sp.get("next") || "/";
+  const [count, setCount] = useState(2);
+
+  useEffect(() => {
+    const t = setInterval(() => setCount(c => (c > 0 ? c - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    if (count === 0) window.location.href = next;
+  }, [count, next]);
 
   return (
-    <main className="min-h-[100dvh] grid place-items-center p-6">
-      <div className="max-w-md w-full bg-white border shadow p-6 rounded-xl text-center">
-        <h1 className="text-lg font-semibold mb-2">Buka tautan aman</h1>
+    <div className="min-h-[100dvh] flex items-center justify-center">
+      <div className="p-6 rounded-xl border shadow max-w-md text-center">
+        <h1 className="text-lg font-semibold mb-2">Buka link reset password</h1>
         <p className="text-sm text-gray-600 mb-4">
-          Klik tombol di bawah untuk melanjutkan. (Langkah ini mencegah
-          pemindaian otomatis email menghabiskan tautan satu-kali.)
+          Demi keamanan, klik tombol di bawah untuk melanjutkan.
         </p>
-        <button
-          onClick={onContinue}
-          className="px-4 py-2 rounded-lg bg-[#D6336C] text-white font-medium"
-        >
+        <a href={next} className="inline-block bg-[#D6336C] text-white px-4 py-2 rounded-lg">
           Lanjutkan
-        </button>
-
-        {!next && (
-          <p className="text-xs text-rose-600 mt-3">
-            Tautan tidak ditemukan. Minta email baru lalu coba lagi.
-          </p>
-        )}
+        </a>
+        <p className="text-xs text-gray-400 mt-3">
+          Mengalihkan otomatis dalam {count}s…
+        </p>
       </div>
-    </main>
+    </div>
+  );
+}
+
+export default function MailGoPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Memuat…</div>}>
+      <MailGoInner />
+    </Suspense>
   );
 }
