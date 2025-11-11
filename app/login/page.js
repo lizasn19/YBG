@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabaseBrowser";
+const supabase = supabaseBrowser;                        
 
 const PHONE_LOGIN_ENABLED = false;
 
@@ -13,24 +15,26 @@ export default function LoginPage() {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
+    // prefill email setelah reset password
     const sp = new URLSearchParams(window.location.search);
     const qEmail = sp.get("email");
     const qReset = sp.get("reset") === "1";
     const mem = localStorage.getItem("reset_email") || "";
-
     const prefill = qEmail || mem;
     if (prefill) setIdentifier(prefill);
     localStorage.removeItem("reset_email");
-
     if (qReset) {
       setMsg("Password telah diubah. Silakan login dengan password baru.");
-      window.history.replaceState({}, "", window.location.pathname + (prefill ? `?email=${encodeURIComponent(prefill)}` : ""));
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname + (prefill ? `?email=${encodeURIComponent(prefill)}` : "")
+      );
     }
   }, []);
 
   const isEmail = (v) => /\S+@\S+\.\S+/.test(v);
   const isPhone = (v) => /^\+?\d{8,15}$/.test((v || "").replace(/[\s-]/g, ""));
-
   function normalizePhone(v) {
     let x = (v || "").replace(/[^\d+]/g, "");
     if (x.startsWith("+62")) return x;
@@ -42,6 +46,7 @@ export default function LoginPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    if (loading) return;
     setMsg("");
 
     const id = identifier.trim();
@@ -49,18 +54,34 @@ export default function LoginPage() {
 
     const isIdEmail = isEmail(id);
     const isIdPhone = !isIdEmail && isPhone(id);
-    if (!isIdEmail && !isIdPhone)
+    if (!isIdEmail && !isIdPhone) {
       return setMsg("Format tidak valid. Gunakan email yang benar atau nomor HP (mis. +62812xxxx).");
+    }
+
+    if (isIdPhone && !PHONE_LOGIN_ENABLED) {
+      return setMsg("Login via nomor HP belum diaktifkan. Gunakan email.");
+    }
 
     setLoading(true);
     try {
-      // TODO: panggil supabase.auth.signInWithPassword di sini
+      const payload = isIdEmail
+        ? { email: id, password }
+        : { phone: normalizePhone(id), password };
+
+      const { data, error } = await supabase.auth.signInWithPassword(payload);
+      if (error) throw error;
+
+      await supabase.auth.refreshSession();
       router.replace("/home");
     } catch (err) {
       const t = (err?.message || "").toLowerCase();
-      if (t.includes("invalid_grant") || t.includes("invalid login credentials")) setMsg("Email/nomor HP atau password salah.");
-      else if (t.includes("422")) setMsg("Login via nomor HP belum diaktifkan.");
-      else setMsg(err?.message || "Gagal masuk.");
+      if (t.includes("invalid_grant") || t.includes("invalid login credentials")) {
+        setMsg("Email/nomor HP atau password salah.");
+      } else if (t.includes("422")) {
+        setMsg("Login via nomor HP belum diaktifkan.");
+      } else {
+        setMsg(err?.message || "Gagal masuk.");
+      }
     } finally {
       setLoading(false);
     }
@@ -68,7 +89,9 @@ export default function LoginPage() {
 
   function handleForgot() {
     const email = identifier.trim();
-    const url = /\S+@\S+\.\S+/.test(email) ? `/forgot?email=${encodeURIComponent(email)}` : `/forgot`;
+    const url = /\S+@\S+\.\S+/.test(email)
+      ? `/forgot?email=${encodeURIComponent(email)}`
+      : `/forgot`;
     router.push(url);
   }
 
