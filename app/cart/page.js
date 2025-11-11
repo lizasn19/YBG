@@ -254,7 +254,7 @@ export default function CartPage() {
                       >
                         –
                       </button>
-                      <span className="text-sm w-6 text-center">{it.qty || 1}</span>
+                      <span className="text-sm w-6 text-black text-center">{it.qty || 1}</span>
                       <button
                         onClick={() => setQty(it.cart_id, (it.qty || 1) + 1)}
                         className="w-7 h-7 grid place-items-center rounded-lg border border-[#D6336C] text-[#D6336C]"

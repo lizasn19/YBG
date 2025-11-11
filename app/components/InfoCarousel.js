@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 const SLIDES = [
-  { title: "Gabung Membership YBG", body: "Lebih dari sekadar katalog, temukan pengalaman belanja + rewards eksklusif.", image: "/slides/info1.png", duration: 10000 },
+  { title: "Gabung Membership YBG", body: "Lebih dari sekedar katalog, temukan pengalaman belanja + rewards eksklusif.", image: "/slides/info1.png", duration: 10000 },
   { title: "Kumpulkan Poin, Tukar Hadiah", body: "Setiap transaksi & aktivitas bisa jadi poin. Tukar dengan voucher, merch, atau hadiah spesial YBG.", image: "/slides/info2.png", duration: 10000 },
   { title: "Event & Promo Hanya untuk Kamu", body: "Dari diskon spesial sampai undangan event eksklusif, semua hanya untuk member YBG.", image: "/slides/info3.png", duration: 10000 },
 ];
