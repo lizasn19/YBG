@@ -10,6 +10,9 @@ const montserrat = Montserrat({
 export const metadata = {
   title: "YBG",
   description: "Website YBG menggunakan font Montserrat",
+    icons: {
+    icon: "/logo_ybg.png", // atau /favicon.png
+  },
 };
 
 export const viewport = {
