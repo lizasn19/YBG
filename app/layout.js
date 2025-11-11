@@ -21,7 +21,6 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="id" className={montserrat.variable}>
-      {/* font-sans akan dipetakan ke Montserrat via Tailwind */}
       <body className="font-sans bg-neutral-100 text-[#171717] min-h-[100dvh]">
         {children}
       </body>

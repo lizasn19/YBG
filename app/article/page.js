@@ -62,7 +62,7 @@ export default function ArticlePage() {
             .order("published_at", { ascending: false, nullsFirst: false }),
 
           supabase
-            .from("ybg_goesto")
+            .from("ybg_article")
             .select(
               "id, nama, image_url, deskripsi, published_at, status, is_active",
               { head: false }
@@ -91,7 +91,7 @@ export default function ArticlePage() {
           setPromo(list);
         }
 
-        // GOESTO
+        // ARTICLE
         if (!alive) return;
         if (gRes.error) {
           console.error("ybg_goesto error:", gRes.error);

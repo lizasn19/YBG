@@ -133,11 +133,13 @@ export default function Beranda() {
 
         {/* List Product */}
         <div className="mt-2 mb-4">
-          <HorizontalProductList title="YBG Exclusive" />
+          {/* dari tabel ybg_exclusive */}
+          <HorizontalProductList title="YBG Exclusive" table="ybg_exclusive" />
         </div>
 
         <div className="mb-6">
-          <HorizontalProductList title="Upcoming Product on YBG" />
+          {/* dari tabel ybg_upcoming */}
+          <HorizontalProductList title="Upcoming Product on YBG" source="upcoming" />
         </div>
 
         <BottomNavigation />

@@ -40,10 +40,11 @@ export default function ProductDetailPage() {
     (async () => {
       try {
         if (isUpcoming) {
+          const idStr = decodeURIComponent(String(id || ""));
           const { data, error } = await supabase
             .from("ybg_upcoming")
             .select("id,nama,deskripsi,image_url,image_urls")
-            .eq("id", id)
+            .eq("id", idStr)
             .maybeSingle();
 
           if (error) throw error;
@@ -208,7 +209,11 @@ export default function ProductDetailPage() {
         {error ? (
           <div className="px-4 py-10 text-sm">
             <p className="text-rose-600">{error}</p>
-            <Link href={`/product/${slug}`} className="text-[#D6336C] underline">Kembali ke daftar</Link>
+            <Link
+              href={`/product/${isUpcoming ? "upcoming" : slug}`}
+              className="text-[#D6336C] underline">
+              Kembali ke daftar
+           </Link>
           </div>
         ) : !item ? (
           <div className="p-4">

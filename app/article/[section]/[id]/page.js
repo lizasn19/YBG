@@ -24,7 +24,7 @@ export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
 
-  // section: "promo" | "goesto"
+  // section: "promo" | "article"
   const section = useMemo(() => {
     const s = Array.isArray(params?.section) ? params.section[0] : params?.section;
     return (s || "").toLowerCase();
@@ -39,14 +39,14 @@ export default function ArticleDetailPage() {
   // table by section 
   const table = useMemo(() => {
     if (section === "promo") return "promo_event";
-    if (section === "goesto") return "ybg_goesto";
+    if (section === "article") return "ybg_article";
     return ""; 
   }, [section]);
 
   // title column by table
   const titleCol = useMemo(() => {
     if (table === "promo_event") return "judul";
-    if (table === "ybg_goesto") return "nama";
+    if (table === "ybg_article") return "nama";
     return "";
   }, [table]);
 
@@ -106,13 +106,18 @@ export default function ArticleDetailPage() {
       <main className="w-full max-w-[430px] min-h-[100dvh] bg-white md:shadow md:border">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-white px-4 py-3 shadow flex items-center gap-3">
-          <button onClick={() => router.back()} aria-label="Kembali" className="p-1 rounded hover:bg-gray-100">
+          <button
+            onClick={() => router.back()}
+            aria-label="Kembali"
+            className="p-1 rounded hover:bg-pink-50 text-[#D6336C] transition"
+          >
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="currentColor" d="M15.5 5.5L9 12l6.5 6.5-1.4 1.4L6.2 12l7.9-7.9 1.4 1.4Z" />
             </svg>
           </button>
+
           <h1 className="text-[#D6336C] font-semibold">
-            {section === "promo" ? "Promo & Event" : "YBG Goes To Feed"}
+            {section === "promo" ? "Promo & Event" : "YBG Article"}
           </h1>
         </div>
 

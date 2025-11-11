@@ -5,31 +5,51 @@ import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 const supabase = supabaseBrowser;
 
-export default function HorizontalProductList({ title }) {
+/**
+ * props:
+ * - title: judul section
+ * - source: "exclusive" | "upcoming" (default: "exclusive")
+ */
+export default function HorizontalProductList({ title, source = "exclusive" }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let alive = true;
+
     async function fetchProducts() {
       try {
-        // ambil dari tabel ybg_exclusive
-        const { data, error } = await supabase
-          .from("ybg_exclusive")
-          .select("id, nama, image_url, price, brand_slug, kategori, deskripsi")
-          .order("created_at", { ascending: false });
+        let data, error;
+
+        if (source === "upcoming") {
+          // ybg_upcoming (id = UUID, price opsional)
+          ({ data, error } = await supabase
+            .from("ybg_upcoming")
+            .select("id, nama, image_url, image_urls, deskripsi, brand_slug, kategori, price, created_at")
+            .order("created_at", { ascending: false }));
+        } else {
+          // ybg_exclusive
+          ({ data, error } = await supabase
+            .from("ybg_exclusive")
+            .select("id, nama, image_url, image_urls, price, brand_slug, kategori, deskripsi, created_at")
+            .order("created_at", { ascending: false }));
+        }
 
         if (error) throw error;
+        if (!alive) return;
         setProducts(data || []);
       } catch (err) {
-        console.error("Fetch ybg_exclusive error:", err);
+        console.error(`Fetch ${source} error:`, err);
+        if (!alive) return;
         setProducts([]);
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     }
 
     fetchProducts();
-  }, []);
+    return () => { alive = false; };
+  }, [source]);
 
   if (loading)
     return (
@@ -49,33 +69,37 @@ export default function HorizontalProductList({ title }) {
     <div className="px-4">
       <h2 className="text-[#D6336C] font-semibold mb-2">{title}</h2>
       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-        {products.map((p) => (
-          <Link
-            key={p.id}
-            href={`/product/${p.brand_slug || p.kategori || "detail"}/${p.id}`}
-            className="min-w-[140px] max-w-[140px] bg-white rounded-xl border shadow-sm overflow-hidden shrink-0"
-          >
-            <div className="relative w-full h-[160px]">
-              <Image
-                src={p.image_url || "/placeholder.png"}
-                alt={p.nama}
-                fill
-                sizes="(max-width: 430px) 140px"
-                className="object-cover"
-              />
-            </div>
-            <div className="p-2">
-              <p className="text-[13px] font-medium text-gray-900 line-clamp-2">
-                {p.nama}
-              </p>
-              {p.price && (
-                <p className="text-[12px] text-[#D6336C] font-semibold mt-1">
-                  Rp {Number(p.price).toLocaleString("id-ID")}
-                </p>
-              )}
-            </div>
-          </Link>
-        ))}
+        {products.map((p) => {
+          // tujuan detail: /product/exclusive/:id atau /product/upcoming/:id
+          const slugSegment = source === "upcoming" ? "upcoming" : "exclusive";
+          const href = `/product/${slugSegment}/${p.id}`;
+
+          return (
+            <Link
+              key={p.id}
+              href={href}
+              className="min-w-[140px] max-w-[140px] bg-white rounded-xl border shadow-sm overflow-hidden shrink-0"
+            >
+              <div className="relative w-full h-[160px]">
+                <Image
+                  src={p.image_url || "/placeholder.png"}
+                  alt={p.nama}
+                  fill
+                  sizes="(max-width: 430px) 140px"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-2">
+                <p className="text-[13px] font-medium text-gray-900 line-clamp-2">{p.nama}</p>
+                {typeof p.price === "number" && source !== "upcoming" && (
+                  <p className="text-[12px] text-[#D6336C] font-semibold mt-1">
+                    Rp {Number(p.price).toLocaleString("id-ID")}
+                  </p>
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
