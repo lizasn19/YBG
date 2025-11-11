@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 function ResetContent() {
   const router = useRouter();
   const q = useSearchParams();
-  const supabase = supabaseBrowser; // gunakan satu instance
+  const supabase = supabaseBrowser; 
 
-  const [status, setStatus] = useState("checking"); // checking | ready | error
+  const [status, setStatus] = useState("checking"); 
   const [msg, setMsg] = useState("");
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
@@ -21,7 +21,6 @@ function ResetContent() {
     let cancelled = false;
 
     (async () => {
-      // 1) Jika Supabase mengirim error via hash: #error=...
       if (typeof window !== "undefined" && window.location.hash.includes("error=")) {
         const h = new URLSearchParams(window.location.hash.slice(1));
         if (!cancelled) {
@@ -31,7 +30,6 @@ function ResetContent() {
         return;
       }
 
-      // 2) Tukar code/oobCode menjadi session
       const code = q.get("code") || q.get("oobCode");
       if (!code) {
         setMsg("Tautan tidak valid atau kadaluarsa.");
@@ -72,12 +70,10 @@ function ResetContent() {
       return;
     }
 
-    // Logout session 'recovery' lalu arahkan ke login
     await supabase.auth.signOut();
     router.replace("/login");
   }
 
-  // State non-ready (checking/error)
   if (status !== "ready") {
     return (
       <div className="min-h-[100dvh] bg-neutral-100">
