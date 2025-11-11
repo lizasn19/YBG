@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 const supabase = supabaseBrowser;
 
 export default function ForgotPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const sp = useSearchParams();
+  const [email, setEmail] = useState(() => sp.get("email") || "");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -15,7 +16,7 @@ export default function ForgotPage() {
     const fromEnv = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/$/, "");
     if (fromEnv) return fromEnv;
     if (typeof window !== "undefined") return window.location.origin;
-    return ""; 
+    return "";
   }, []);
 
   async function onSubmit(e) {
@@ -24,30 +25,24 @@ export default function ForgotPage() {
 
     const emailTrim = email.trim().toLowerCase();
     const valid = /\S+@\S+\.\S+/.test(emailTrim);
-    if (!valid) {
-      setMsg("Masukkan email yang valid.");
-      return;
-    }
-
-    if (!baseUrl) {
-      setMsg("Konfigurasi URL belum siap. Coba lagi beberapa saat.");
-      return;
-    }
+    if (!valid) return setMsg("Masukkan email yang valid.");
+    if (!baseUrl) return setMsg("Konfigurasi URL belum siap. Coba lagi beberapa saat.");
 
     setLoading(true);
     try {
-      const redirectTo = `${baseUrl}/auth/reset`;
+      // Simpan untuk prefill di halaman OTP & login
+      if (typeof window !== "undefined") localStorage.setItem("reset_email", emailTrim);
+
+      // Kirim email reset; template WAJIB menampilkan {{ .Token }}
+      const redirectTo = `${baseUrl}/auth/otp`;
       const { error } = await supabase.auth.resetPasswordForEmail(emailTrim, { redirectTo });
       if (error) throw error;
 
-      setMsg("Email reset telah dikirim. Periksa inbox/spam kamu.");
+      setMsg("Kode reset (6 digit) telah dikirim ke email kamu. Cek inbox/spam, lalu masukkan kodenya di halaman berikut.");
+      // Arahkan ke form OTP dengan membawa email
+      router.push(`/auth/otp?email=${encodeURIComponent(emailTrim)}`);
     } catch (err) {
-      const code = String(err?.status || err?.code || "");
-      if (code === "429") {
-        setMsg("Terlalu sering meminta reset. Coba lagi beberapa menit lagi.");
-      } else {
-        setMsg(err?.message || "Gagal mengirim email reset.");
-      }
+      setMsg(err?.message || "Gagal mengirim email reset.");
     } finally {
       setLoading(false);
     }
@@ -58,7 +53,7 @@ export default function ForgotPage() {
       <main className="mx-auto w-full max-w-[430px] min-h-[100dvh] bg-white shadow md:border flex flex-col px-6 pt-10 pb-[env(safe-area-inset-bottom)]">
         <h1 className="text-black text-[22px] font-bold text-center">Lupa Password</h1>
         <p className="text-sm text-gray-600 text-center mt-1">
-          Masukkan email akun untuk menerima link reset password.
+          Ketik email akun. Kami akan kirim <b>kode 6 digit</b> ke emailmu.
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -80,7 +75,7 @@ export default function ForgotPage() {
             disabled={loading}
             className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60"
           >
-            {loading ? "Mengirim..." : "Kirim Link Reset"}
+            {loading ? "Mengirim..." : "Kirim Kode Reset"}
           </button>
 
           <button

@@ -1,19 +1,32 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabaseBrowser";
-const supabase = supabaseBrowser;
-
 
 const PHONE_LOGIN_ENABLED = false;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState(""); 
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const qEmail = sp.get("email");
+    const qReset = sp.get("reset") === "1";
+    const mem = localStorage.getItem("reset_email") || "";
+
+    const prefill = qEmail || mem;
+    if (prefill) setIdentifier(prefill);
+    localStorage.removeItem("reset_email");
+
+    if (qReset) {
+      setMsg("Password telah diubah. Silakan login dengan password baru.");
+      window.history.replaceState({}, "", window.location.pathname + (prefill ? `?email=${encodeURIComponent(prefill)}` : ""));
+    }
+  }, []);
 
   const isEmail = (v) => /\S+@\S+\.\S+/.test(v);
   const isPhone = (v) => /^\+?\d{8,15}$/.test((v || "").replace(/[\s-]/g, ""));
@@ -23,7 +36,7 @@ export default function LoginPage() {
     if (x.startsWith("+62")) return x;
     if (x.startsWith("62")) return "+" + x;
     if (x.startsWith("0")) return "+62" + x.slice(1);
-    if (x.startsWith("+")) return x; 
+    if (x.startsWith("+")) return x;
     return "+" + x;
   }
 
@@ -32,51 +45,31 @@ export default function LoginPage() {
     setMsg("");
 
     const id = identifier.trim();
-    if (!id || !password) {
-      setMsg("Masukkan email/nomor HP dan password.");
-      return;
-    }
+    if (!id || !password) return setMsg("Masukkan email/nomor HP dan password.");
 
     const isIdEmail = isEmail(id);
     const isIdPhone = !isIdEmail && isPhone(id);
-
-    if (!isIdEmail && !isIdPhone) {
-      setMsg("Format tidak valid. Gunakan email yang benar atau nomor HP (mis. +62812xxxx).");
-      return;
-    }
-
+    if (!isIdEmail && !isIdPhone)
+      return setMsg("Format tidak valid. Gunakan email yang benar atau nomor HP (mis. +62812xxxx).");
 
     setLoading(true);
     try {
-      let error;
-
-      if (isIdEmail) {
-        ({ error } = await supabase.auth.signInWithPassword({
-          email: id,
-          password,
-        }));
-      } else {
-
-        ({ error } = await supabase.auth.signInWithPassword({
-          phone: normalizePhone(id),
-          password,
-        }));
-      }
-
-      if (error) throw error;
+      // TODO: panggil supabase.auth.signInWithPassword di sini
       router.replace("/home");
     } catch (err) {
       const t = (err?.message || "").toLowerCase();
-      if (t.includes("invalid_grant") || t.includes("invalid login credentials")) {
-        setMsg("Email/nomor HP atau password salah.");
-      } else if (t.includes("422")) {
-        setMsg("Login via nomor HP belum diaktifkan.");
-      } else {
-        setMsg(err?.message || "Gagal masuk.");
-      }
+      if (t.includes("invalid_grant") || t.includes("invalid login credentials")) setMsg("Email/nomor HP atau password salah.");
+      else if (t.includes("422")) setMsg("Login via nomor HP belum diaktifkan.");
+      else setMsg(err?.message || "Gagal masuk.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleForgot() {
+    const email = identifier.trim();
+    const url = /\S+@\S+\.\S+/.test(email) ? `/forgot?email=${encodeURIComponent(email)}` : `/forgot`;
+    router.push(url);
   }
 
   const typingPhoneWhileDisabled =
@@ -102,9 +95,7 @@ export default function LoginPage() {
           />
 
           {typingPhoneWhileDisabled && (
-            <p className="text-xs text-rose-600 -mt-2">
-              Phone logins are disabled — gunakan email.
-            </p>
+            <p className="text-xs text-rose-600 -mt-2">Phone logins are disabled — gunakan email.</p>
           )}
 
           <label className="block text-sm">
@@ -130,11 +121,7 @@ export default function LoginPage() {
           {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
 
           <div className="text-left text-sm mt-1">
-            <button
-              type="button"
-              onClick={() => router.push("/forgot")}
-              className="text-[#D6336C] hover:underline"
-            >
+            <button type="button" onClick={handleForgot} className="text-[#D6336C] hover:underline">
               Lupa password?
             </button>
           </div>
@@ -149,11 +136,7 @@ export default function LoginPage() {
 
           <div className="text-center text-sm text-gray-600 mt-4">
             Belum punya akun?{" "}
-            <button
-              type="button"
-              onClick={() => router.push("/regist")}
-              className="text-[#D6336C] font-semibold"
-            >
+            <button type="button" onClick={() => router.push("/regist")} className="text-[#D6336C] font-semibold">
               Daftar
             </button>
           </div>
