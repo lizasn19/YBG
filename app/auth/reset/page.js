@@ -1,82 +1,96 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
-const supabase = supabaseBrowser;
 
 export const dynamic = "force-dynamic";
 
-// Komponen yang memakai useSearchParams dibungkus Suspense
 function ResetContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const supabase = getSupabaseClient();
+  const q = useSearchParams();
+  const supabase = supabaseBrowser; // gunakan satu instance
 
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState("checking"); // checking | ready | error
+  const [msg, setMsg] = useState("");
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-    async function init() {
-      setMsg("");
-
-      // Jika env belum tersedia saat prerender, jangan lanjutkan
-      if (!supabase) {
-        if (!cancelled) setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
+    (async () => {
+      // 1) Jika Supabase mengirim error via hash: #error=...
+      if (typeof window !== "undefined" && window.location.hash.includes("error=")) {
+        const h = new URLSearchParams(window.location.hash.slice(1));
+        if (!cancelled) {
+          setMsg(h.get("error_description") || "Tautan tidak valid atau kadaluarsa.");
+          setStatus("error");
+        }
         return;
       }
 
-      // Ambil code dari URL dan tukar sesi
-      const code = searchParams.get("code") || searchParams.get("oobCode");
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error && !cancelled) {
-          setMsg("Link reset tidak valid atau kadaluarsa.");
-          return;
-        }
+      // 2) Tukar code/oobCode menjadi session
+      const code = q.get("code") || q.get("oobCode");
+      if (!code) {
+        setMsg("Tautan tidak valid atau kadaluarsa.");
+        setStatus("error");
+        return;
       }
 
-      const { data } = await supabase.auth.getSession();
-      if (!cancelled) setReady(!!data?.session);
-      if (!data?.session && !cancelled) {
-        setMsg("Sesi pemulihan tidak ditemukan. Ulangi proses lupa password.");
-      }
-    }
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (cancelled) return;
 
-    init();
+      if (error) {
+        setMsg(error.message || "Tautan tidak valid atau kadaluarsa.");
+        setStatus("error");
+        return;
+      }
+
+      setStatus("ready");
+    })();
+
     return () => {
       cancelled = true;
     };
-  }, [searchParams, supabase]);
+  }, [q]);
 
   async function onSubmit(e) {
     e.preventDefault();
     setMsg("");
 
-    if (!pw1 || pw1.length < 8) return setMsg("Password minimal 8 karakter.");
+    if (pw1.length < 8) return setMsg("Password minimal 8 karakter.");
     if (pw1 !== pw2) return setMsg("Konfirmasi password tidak sama.");
-    if (!supabase) return setMsg("Konfigurasi belum siap. Coba lagi beberapa saat.");
 
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ password: pw1 });
-      if (error) throw error;
+    const { error } = await supabase.auth.updateUser({ password: pw1 });
+    setLoading(false);
 
-      setMsg("Password berhasil diubah. Silakan login ulang.");
-      await supabase.auth.signOut();
-      router.replace("/login");
-    } catch (err) {
-      setMsg(err?.message || "Gagal memperbarui password.");
-    } finally {
-      setLoading(false);
+    if (error) {
+      setMsg(error.message || "Gagal memperbarui password.");
+      return;
     }
+
+    // Logout session 'recovery' lalu arahkan ke login
+    await supabase.auth.signOut();
+    router.replace("/login");
   }
 
+  // State non-ready (checking/error)
+  if (status !== "ready") {
+    return (
+      <div className="min-h-[100dvh] bg-neutral-100">
+        <main className="mx-auto w-full max-w-[430px] min-h-[100dvh] bg-white shadow md:border flex items-center justify-center p-6">
+          <p className="text-sm text-center text-rose-600">
+            {msg || "Memvalidasi tautan…"}
+          </p>
+        </main>
+      </div>
+    );
+  }
+
+  // Form reset
   return (
     <div className="min-h-[100dvh] bg-neutral-100">
       <main className="mx-auto w-full max-w-[430px] min-h-[100dvh] bg-white shadow md:border flex flex-col px-6 pt-10 pb-[env(safe-area-inset-bottom)]">
@@ -85,45 +99,39 @@ function ResetContent() {
           Masukkan password barumu di bawah ini.
         </p>
 
-        {!ready ? (
-          <div className="mt-6 text-center text-sm text-rose-600">
-            {msg || "Menyiapkan sesi..."}
-          </div>
-        ) : (
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <label className="block text-sm">
-              <span className="block text-black mb-1 font-medium">Password baru</span>
-              <input
-                type="password"
-                value={pw1}
-                onChange={(e) => setPw1(e.target.value)}
-                placeholder="••••••••"
-                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
-              />
-            </label>
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <label className="block text-sm">
+            <span className="block text-black mb-1 font-medium">Password baru</span>
+            <input
+              type="password"
+              value={pw1}
+              onChange={(e) => setPw1(e.target.value)}
+              placeholder="••••••••"
+              className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
+            />
+          </label>
 
-            <label className="block text-sm">
-              <span className="block text-black mb-1 font-medium">Ulangi password baru</span>
-              <input
-                type="password"
-                value={pw2}
-                onChange={(e) => setPw2(e.target.value)}
-                placeholder="••••••••"
-                className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
-              />
-            </label>
+          <label className="block text-sm">
+            <span className="block text-black mb-1 font-medium">Ulangi password baru</span>
+            <input
+              type="password"
+              value={pw2}
+              onChange={(e) => setPw2(e.target.value)}
+              placeholder="••••••••"
+              className="w-full border border-[#D1D5DB] rounded-lg px-3 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200"
+            />
+          </label>
 
-            {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
+          {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60"
-            >
-              {loading ? "Memproses..." : "Simpan Password"}
-            </button>
-          </form>
-        )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60"
+          >
+            {loading ? "Memproses…" : "Simpan Password"}
+          </button>
+        </form>
       </main>
     </div>
   );

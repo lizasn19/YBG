@@ -21,7 +21,6 @@ function Input({ label, type = "text", ...props }) {
   return (
     <label className="block text-sm">
       {label && <span className="block text-black mb-1 font-medium">{label}</span>}
-
       {isPassword ? (
         <div className="flex items-stretch gap-2">
           <input
@@ -32,7 +31,7 @@ function Input({ label, type = "text", ...props }) {
           <button
             type="button"
             onClick={() => setShow((s) => !s)}
-            className="px-3 rounded-lg border border-[#D1D5DB] text-sm"
+            className="px-3 rounded-lg border border-[#D1D5DB] text-sm text-[#D6336C]"
           >
             {show ? "Sembunyi" : "Lihat"}
           </button>
@@ -195,8 +194,8 @@ export default function RegistPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-neutral-100">
-      <main className="mx-auto w-full max-w-[430px] bg-white shadow md:border px-6 pt-10 pb-[env(safe-area-inset-bottom)]">
+    <div className="min-h-[100dvh] bg-neutral-100 flex justify-center">
+      <main className="mx-auto w-full max-w-[430px] bg-white shadow md:border px-6 pt-10 pb-12 rounded-t-2xl">
         <div className="flex flex-col items-center">
           <img src="/logo_ybg.png" alt="YBG" className="w-28 h-28" />
           <h1 className="text-black text-[22px] font-semibold">Daftar Akun YBG</h1>
@@ -206,7 +205,7 @@ export default function RegistPage() {
         </div>
 
         {step === "fill" && (
-          <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+          <form onSubmit={handleSendOtp} className="mt-6 space-y-4 pb-6">
             <Input label="Nama Lengkap" name="name" placeholder="Masukkan Nama Lengkap" value={form.name} onChange={onChange} />
             <Input label="Email" type="email" name="email" placeholder="Masukkan Email" value={form.email} onChange={onChange} />
             <Input label="Nomor Handphone (opsional)" type="tel" name="phone" placeholder="08xxx atau +62xxx" value={form.phone} onChange={onChange} />
@@ -215,17 +214,19 @@ export default function RegistPage() {
 
             {msg && <p className="text-sm text-center text-rose-600">{msg}</p>}
 
-            <button
-              disabled={loading}
-              className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60"
-            >
-              {loading ? "Mengirim OTP..." : "Kirim OTP ke Email"}
-            </button>
+            <div className="pt-2">
+              <button
+                disabled={loading}
+                className="w-full bg-[#D6336C] text-white font-semibold rounded-lg py-3 disabled:opacity-60 shadow-sm"
+              >
+                {loading ? "Mengirim OTP..." : "Kirim OTP ke Email"}
+              </button>
+            </div>
           </form>
         )}
 
         {step === "otp" && (
-          <form onSubmit={handleVerifyAndFinish} className="mt-6 space-y-4">
+          <form onSubmit={handleVerifyAndFinish} className="mt-6 space-y-4 pb-10">
             <Input
               label="Kode OTP (6 digit)"
               inputMode="numeric"
@@ -255,7 +256,7 @@ export default function RegistPage() {
         )}
 
         {step === "done" && (
-          <div className="mt-6">
+          <div className="mt-6 mb-12">
             <p className="text-center text-emerald-600 font-medium">
               Registrasi berhasil! Silakan login.
             </p>

@@ -128,7 +128,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
-                className="px-3 rounded-lg border border-[#D1D5DB] text-sm"
+                className="px-3 rounded-lg border border-[#D1D5DB] text-sm text-[#D6336C]"
               >
                 {showPw ? "Sembunyi" : "Lihat"}
               </button>
