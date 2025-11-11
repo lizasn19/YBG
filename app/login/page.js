@@ -46,11 +46,6 @@ export default function LoginPage() {
     }
 
 
-    if (isIdPhone && !PHONE_LOGIN_ENABLED) {
-      setMsg("Login pakai nomor HP belum diaktifkan. Gunakan email.");
-      return;
-    }
-
     setLoading(true);
     try {
       let error;
