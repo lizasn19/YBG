@@ -12,10 +12,10 @@ export const metadata = {
   description: "Website YBG menggunakan font Montserrat",
   icons: {
     icon: [
-      { url: "/logo_ybg.ico", type: "image/x-icon" },
+      { url: "/favicon.ico", type: "image/x-icon" },
       { url: "/logo_ybg.png", type: "image/png" },
     ],
-    shortcut: "/logo_ybg.ico",
+    shortcut: "/favicon.ico",
     apple: "/logo_ybg.png",
   },
 };
